@@ -1,2 +1,8 @@
 # file di dati
 *.dat
+
+# (eventuali) eseguibili
+*.a
+
+# file specifici
+oscillatore
