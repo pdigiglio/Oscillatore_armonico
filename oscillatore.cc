@@ -1,26 +1,45 @@
+/* C standard libraries */
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
 #include "./oscillatore.h"
 
-using namespace std;
+/*
+ * ------------------------------------------------------------------
+ *       Class: oscillatore
+ *      Method: oscillatore
+ * Description: [default ctor] positions initialized at random values
+ * ------------------------------------------------------------------
+ */
+oscillatore::oscillatore ( void ) {
+	for ( unsigned short int i = 0; i < N; i ++ )
+		x[i] = (long double) 2 * rand() / RAND_MAX;
+} /* -----  end of method oscillatore::oscillatore (def. ctor)  ----- */
 
-	/* costruttore default */
-	oscillatore::oscillatore ( void ) {
-		for ( unsigned short int i = 0; i < N; i ++ ) {
-			x[i] = (long double) 2 * rand() / RAND_MAX;
-			c.data[i] = (long double) 0;
-		}
-	}
 	
-	/* costruttore */
-	oscillatore::oscillatore ( long double value ) {
-		for ( unsigned short int i = 0; i < N; i ++ ) {
-			x[i] = value;
-			c.data[i] = (long double) 0;
-		}
-	}
-	
-	/* distruttore */
-	oscillatore::~oscillatore ( void ) {}
-	
+/*
+ * ------------------------------------------------------------------
+ *       Class: oscillatore
+ *      Method: oscillatore
+ * Description: [ctor] all positions initialized at value 'value'
+ * ------------------------------------------------------------------
+ */
+oscillatore::oscillatore ( long double value ) {
+	for ( unsigned short int i = 0; i < N; i ++ )
+		x[i] = value;
+} /* -----  end of method oscillatore::oscillatore (ctor)  ----- */
+
+/*
+ * ------------------------------------------------------------------
+ *       Class: oscillatore
+ *      Method: ~oscillatore
+ * Description: destructor
+ * ------------------------------------------------------------------
+ */
+oscillatore::~oscillatore ( void ) {
+} /* -----  end of method oscillatore::~oscillatore (dtor)  ----- */
+
 
 	void oscillatore::plot_state ( void ) {
 		for ( unsigned short int i = 0; i < N; i ++ )
@@ -46,15 +65,28 @@ using namespace std;
 	}
 	
 
-	/* calcola e restituisce il valore dell'azione */
-	long double oscillatore::get_action (void) {
-		S = (long double) 0;
-		for (unsigned short int i = 0; i < N; i += 1)
-			S += (M*powl(x[(N + i+1)%N]-x[i], (long double) 2))/(2*a) + a*V(x[i]);
-			
-		return S;
+/*
+ * ------------------------------------------------------------------
+ *       Class: oscillatore
+ *      Method: get_action
+ * Description: computes and returns action value
+ * ------------------------------------------------------------------
+ */
+long double
+oscillatore::get_action ( void ) {
+	S = (long double) 0;
+
+	/* temporary variable */
+	long double tmp;
+	for ( unsigned short int i = 0; i < N; i ++ ) {
+		tmp = x[ ( N + i + 1 ) % N ] - x[i];
+		S += .5 * M * tmp * tmp / a + a * V( x[i] );
+//		S += (M*powl(x[(N + i+1)%N]-x[i], (long double) 2))/(2*a) + a*V(x[i]);
 	}
-	
+
+	return S;
+} /* -----  end of method oscillatore::get_action  ----- */
+
 	/* restituisce le variabili aggiornate ad ogni sweep */
 	unsigned short int oscillatore::get_updated (void) {
 		return updated;

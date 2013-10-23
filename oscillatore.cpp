@@ -1,8 +1,6 @@
 #include "oscillatore.cc"
 /* per il seme dei numeri casuali */
-#include <ctime>
-
-using namespace std;
+#include <time.h>
 
 int main (void) {
 	/* inizializzo generatore num. casuali */
@@ -10,7 +8,7 @@ int main (void) {
 		
 	oscillatore sistema;
 //	sistema.plot_state();
-	for (unsigned int i = 0; i < 10000100; i += 1) {
+	for (unsigned int i = 0; i < 100; i += 1) {
 //		printf("%u\t%Lf\n", i, sistema.get_action());
 		sistema.sweep();
 		if ( i >= 100 )

@@ -1,10 +1,6 @@
 #ifndef __OSCILLATORE_H__
 #define __OSCILLATORE_H__
 
-/* Librerie C */
-#include <cmath>
-#include <cstdlib>
-#include <cstdio>
 
 #define MAIN_PROGRAM
 #include "global.h"
@@ -85,7 +81,7 @@ class oscillatore {
 
 		struct {
 			/* vettore dati, vettore errori */
-			long double data[N], err[N];
+			long double data[N] = {}, err[N];
 			/* dice se e'riempito o no */
 			bool filled = false;
 			/* controlla se e' normalizzato o no */
