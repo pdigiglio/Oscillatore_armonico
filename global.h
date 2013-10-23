@@ -1,10 +1,10 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-/* parametri oscillatore */
-#define N 64
-#define M 1.0
-#define W 1.0
+#define N 64	/* numero di Trotter */
+#define M 1.	/* massa */
+#define W 1.	/* pulsazione */
+
 /* aggiunte */
 #define a 1.
 
