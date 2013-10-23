@@ -3,37 +3,37 @@
 using namespace std;
 
 	/* costruttore default */
-	oscillatore::oscillatore (void) {
-		for (unsigned int i = 0; i < N; i += 1) {
-			x[i] = (long double) 2*rand()/RAND_MAX;
+	oscillatore::oscillatore ( void ) {
+		for ( unsigned short int i = 0; i < N; i ++ ) {
+			x[i] = (long double) 2 * rand() / RAND_MAX;
 			c.data[i] = (long double) 0;
 		}
 	}
 	
 	/* costruttore */
-	oscillatore::oscillatore (long double value) {
-		for (unsigned int i = 0; i < N; i += 1) {
+	oscillatore::oscillatore ( long double value ) {
+		for ( unsigned short int i = 0; i < N; i ++ ) {
 			x[i] = value;
 			c.data[i] = (long double) 0;
 		}
 	}
 	
 	/* distruttore */
-	oscillatore::~oscillatore (void) {}
+	oscillatore::~oscillatore ( void ) {}
 	
 
-	void oscillatore::plot_state (void) {
-		for (unsigned short int i = 0; i < N; i += 1)
+	void oscillatore::plot_state ( void ) {
+		for ( unsigned short int i = 0; i < N; i ++ )
 			printf("%u\t%Lf\n", i, x[i]);
 	}
 	
-	void oscillatore::plot_correlator (void) {
+	void oscillatore::plot_correlator ( void ) {
 		/* controlla se 'c.data[t]' e' riempito (se no lo riempie) */
 		fill_correlator();
 		/* controlla se e' normalizzato */
 		normalize_correlator();
 		
-		for (unsigned short int i = 0; i < N; i += 1)
+		for ( unsigned short int i = 0; i < N; i ++ )
 			printf("%u\t%Lg\n", i, c.data[i]);
 	}
 
