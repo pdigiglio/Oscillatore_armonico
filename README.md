@@ -17,5 +17,15 @@ Il programma ha come scopo la stima di:
 * Differenza tra l'energia dello stato fondamentale e quella del primo stato eccitato;
 * Elemento di matrice della posizione _x_ tra lo stato energetico fondamentale _e<sub>0</sub>_ e il primo eccitato _e<sub>1</sub>_.
 
+Medie ed incertezze su queste osservabili sono ottenute mediante il metodo Jackknife.
+
+<!--
+
+## Features
+
+Il programma permette di calcolare gli auto-correlatori 
+---->
+
+
 [1]: http://it.wikipedia.org/wiki/Algoritmo_di_Metropolis-Hastings "Algoritmo Metropolis su Wikipedia"
 
