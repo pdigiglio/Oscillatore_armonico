@@ -1,9 +1,8 @@
-/* C standard libraries */
-#include <stdlib.h>
-#include <stdio.h>
+/* C standard math library */
 #include <math.h>
 
-#include "./oscillatore.h"
+/* Class header file */
+#include "oscillatore.h"
 
 /*
  * ------------------------------------------------------------------
@@ -13,8 +12,11 @@
  * ------------------------------------------------------------------
  */
 oscillatore::oscillatore ( void ) {
-	for ( unsigned short int i = 0; i < N; i ++ )
-		x[i] = (long double) 2 * rand() / RAND_MAX;
+//	#pragma omp parallel for
+	for ( unsigned short int i = 0; i < N; i ++ ) {
+		*(x + i) = (long double) 2 * rand() / RAND_MAX;
+//		printf( "%hu\t%Lf\n", i, *(x + i) );
+	}
 } /* -----  end of method oscillatore::oscillatore (def. ctor)  ----- */
 
 	
@@ -26,8 +28,9 @@ oscillatore::oscillatore ( void ) {
  * ------------------------------------------------------------------
  */
 oscillatore::oscillatore ( long double value ) {
+//	#pragma omp parallel for
 	for ( unsigned short int i = 0; i < N; i ++ )
-		x[i] = value;
+		*(x + i) = value;
 } /* -----  end of method oscillatore::oscillatore (ctor)  ----- */
 
 /*
@@ -41,11 +44,20 @@ oscillatore::~oscillatore ( void ) {
 } /* -----  end of method oscillatore::~oscillatore (dtor)  ----- */
 
 
-	void oscillatore::plot_state ( void ) {
-		for ( unsigned short int i = 0; i < N; i ++ )
-			printf("%u\t%Lf\n", i, x[i]);
-	}
-	
+/*
+ * ------------------------------------------------------------------
+ *       Class: oscillatore
+ *      Method: plot_state
+ * Description: stampa a schermo lo stato (tutte le posizioni ai tem-
+ * 				pi fisici del reticolo) del sistema
+ * ------------------------------------------------------------------
+ */
+void
+oscillatore::plot_state ( void ) {
+	for ( unsigned short int i = 0; i < N; i ++ )
+		printf( "%u\t%Lf\n", i, *(x + i) );
+} /* -----  end of method oscillatore::plot_state  ----- */
+
 	void oscillatore::plot_correlator ( void ) {
 		/* controlla se 'c.data[t]' e' riempito (se no lo riempie) */
 		fill_correlator();
@@ -87,10 +99,17 @@ oscillatore::get_action ( void ) {
 	return S;
 } /* -----  end of method oscillatore::get_action  ----- */
 
-	/* restituisce le variabili aggiornate ad ogni sweep */
-	unsigned short int oscillatore::get_updated (void) {
-		return updated;
-	}
+/*
+ * ------------------------------------------------------------------
+ *       Class: oscillatore
+ *      Method: get_updated
+ * Description: restituisce le variabili aggiornate ad ogni sweep 
+ * ------------------------------------------------------------------
+ */
+unsigned short int
+oscillatore::get_updated ( void ) {
+	return updated;
+} /* -----  end of method oscillatore::get_updated  ----- */
 
 	/* restituisce 'corr.data[k][t]' */
 	long double oscillatore::get_corr (unsigned int k, unsigned short int t) {
@@ -123,7 +142,7 @@ oscillatore::get_action ( void ) {
 	void oscillatore::sweep (void) {
 		/* azzero il numero di aggiornamenti per lo sweep */
 		updated = 0;
-		for (unsigned short int i = 0; i < N; i += 1) {
+		for ( unsigned short int i = 0; i < N; i ++ ) {
 			/* estraggo dei numeri casuali tra 0 e 1 */
 			for (unsigned short int j = 0; j < 2; j += 1)
 				step[j] = (long double) rand()/RAND_MAX;
@@ -131,8 +150,8 @@ oscillatore::get_action ( void ) {
 			/* controlla se $e^{\delta S} \ge r_2$ */
 			if ( expl(-diff(step[0], i)) >= step[1] ) {
 				/* 'updated' controlla gli aggiornamenti in uno sweep */
-				updated++;
-				x[i] += (long double) DELTA*(2*step[0] - 1);
+				updated ++;
+				x[i] += (long double) DELTA * ( 2 * step[0] - 1);
 			}
 		}
 	}

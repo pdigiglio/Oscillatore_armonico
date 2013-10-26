@@ -1,10 +1,14 @@
+/* C standard libraries */
+#include <stdlib.h>
+#include <stdio.h>
+
 #ifndef __OSCILLATORE_H__
 #define __OSCILLATORE_H__
 
 
 #define MAIN_PROGRAM
 #include "global.h"
-		
+
 class oscillatore {
 	public:
 		/* inizializza la posizione in modo casuale */

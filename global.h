@@ -8,6 +8,6 @@
 /* aggiunte */
 #define a 1.
 
-#define DELTA 3
+#define DELTA 3.
 
 #endif
