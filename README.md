@@ -1,7 +1,7 @@
 Descrizione
 =======================
 
-Sorgenti per lo studio numerico di un oscillatore armonico quantistico mono-dimensionale (di cui si conosce una soluzione analitica).
+Sorgenti per lo studio numerico di un oscillatore armonico quantistico mono-dimensionale (di cui si conosce una soluzione analitica) tramite la generazione di una catena di Markov.
 
 ## Algoritmo
 
@@ -22,16 +22,13 @@ Medie ed incertezze su queste osservabili sono ottenute mediante il metodo Jackk
 
 ### Differenza d'energia
 
-Per calcolare la differenza d'energia _E_, il programma calcola il __correlatore__ definito come 
+Per calcolare la differenza d'energia _E_, il programma calcola il __correlatore__ tra gli operatori posizione _x_ ai tempi _i_ e _j_ sul reticolo, cioè
 
 ![equation](http://bit.ly/1ilDhES)
 
-Il programma stima anche il correlatore _c(i,j)_
+Al denominatore compare la _funzione di partizinone_ del sistema.
+Gli integrali che compaiono nel correlatore vengono stimati tramite il metodo Montecarlo con il campionamento d'importanza.
 
-
-<!--
-<img align="center" src="http://www.sciweavers.org/tex2img.php?eq=c%28i%2Cj%29%20%3A%3D%20%5Cdfrac%7B%20%5Cdisplaystyle%5Cint%20x_ix_j%20%5C%2C%20%5Cmathrm%7Be%7D%5E%7B-S%2F%5Chbar%7D%5Cprod_%7Bk%3D0%7D%5E%7BN-1%7D%5Cmathdm%7Bd%7D%20x_k%7D%7B%5Cdisplaystyle%20%5Cint%20%5Cmathrm%7Be%7D%5E%7B-S%2F%5Chbar%7D%5Cprod_%7Bk%3D0%7D%5E%7BN-1%7D%5Cmathdm%7Bd%7D%20x_k%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" alt="equation">
---->
 
 <!--
 
