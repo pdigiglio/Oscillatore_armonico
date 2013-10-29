@@ -18,6 +18,9 @@ Il programma ha come scopo la stima di:
 * Elemento di matrice della posizione _x_ tra lo stato energetico fondamentale _e<sub>0</sub>_ e il primo eccitato _e<sub>1</sub>_.
 
 Medie ed incertezze su queste osservabili sono ottenute mediante il metodo Jackknife.
+In in primo momento i correlatori sono suddivisi in _bin_ di dimensione tale da potersi considerare de-correlati.
+Questa dimensione è dell'ordine di dieci volte il tempo di auto-correlazione dei correlatori.
+Successivamente, dai bin si ricavano i _cluster_ necessari nel metodo Jackknife.
 
 
 ### Differenza d'energia
@@ -26,7 +29,7 @@ Per calcolare la differenza d'energia _E_, il programma calcola il __correlatore
 
 ![equation](http://bit.ly/1ilDhES)
 
-Al denominatore compare la _funzione di partizinone_ e _S_ è l'azione del sistema.
+Al denominatore compare la _funzione di partizione_ e _S_ è l'azione del sistema.
 Gli integrali che compaiono nel correlatore vengono stimati tramite il metodo Montecarlo con il campionamento d'importanza.
 
 
