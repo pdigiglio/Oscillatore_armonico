@@ -26,7 +26,7 @@ Per calcolare la differenza d'energia _E_, il programma calcola il __correlatore
 
 ![equation](http://bit.ly/1ilDhES)
 
-Al denominatore compare la _funzione di partizinone_ del sistema.
+Al denominatore compare la _funzione di partizinone_ e _S_ è l'azione del sistema.
 Gli integrali che compaiono nel correlatore vengono stimati tramite il metodo Montecarlo con il campionamento d'importanza.
 
 
