@@ -17,6 +17,11 @@ class oscillatore {
 		oscillatore (long double value);
 		/* distruttore */
 		virtual ~oscillatore (void);
+		
+		/* XXX */
+		void correlator (void);
+		void print_c (void);
+		void Cluster (void);
 
 		/* METODI */
 
@@ -32,11 +37,11 @@ class oscillatore {
 		/* restitiusce il num. di aggiornamenti ad ogni sweep */
 		unsigned short int get_updated (void);
 		/* restituisce 'corr.data[k][t]' */
-		long double get_corr (unsigned int k, unsigned short int t);
+//		long double get_corr (unsigned int k, unsigned short int t);
 		/* restitiusce 'ac.data[t]' */
-		long double get_ac (unsigned short int t);
+//		long double get_ac (unsigned short int t);
 		/* restituisce 'cb.data[k][t]' */
-		long double get_cb (unsigned int k, unsigned short int t);
+//		long double get_cb (unsigned int k, unsigned short int t);
 		/* restitiusce la posizione x[t] (t = tempo reticolo) */
 		long double get_position (unsigned short int t);
 		
@@ -79,13 +84,21 @@ class oscillatore {
 		void normalize_correlator_binned (void);
 
 	private:
-		long double x[N]; /* posizioni lungo il reticolo */
-		long double step[2]; /* numeri casuali */
-		unsigned short int updated; /* variabili aggiornate ad ogni sweep */
+		/* posizioni lungo il reticolo */
+		long double x[N];
+		/* numero casuale (random) */
+		long double r;
+		/* variabile temporanea generica */
+//		long double tmp;
+		/* variabili aggiornate ad ogni sweep */
+		unsigned short int updated = 0;
 
 		struct {
 			/* vettore dati, vettore errori */
-			long double data[N] = {}, err[N];
+			long double mean[N] = {}, err[N] = {};
+			/* matrice dei bin */
+			long double *bin[N] = {};
+			unsigned int nB = 100;
 			/* dice se e'riempito o no */
 			bool filled = false;
 			/* controlla se e' normalizzato o no */
@@ -93,6 +106,9 @@ class oscillatore {
 			/* numero di volte che lo aggiorno */
 			unsigned int sweep = 0;
 		} c; /* correlatore (va diviso per 'c.sweep') */
+
+		long double *auc[N] = {};
+		long double cacca[30] = {};
 
 		struct {
 			/* matriciozza */
