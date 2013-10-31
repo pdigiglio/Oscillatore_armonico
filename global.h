@@ -5,9 +5,10 @@
 #define M 1.	/* massa */
 #define W 1.	/* pulsazione */
 
-/* aggiunte */
-#define a 1.
+#define a 1.	/* discretizzazione temporale */
 
 #define DELTA 3.
+
+#define MIN(a, b) ( (a) < (b) ? (a) : (b) )
 
 #endif

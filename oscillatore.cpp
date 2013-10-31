@@ -15,12 +15,19 @@ int main (void) {
 		sistema.sweep();
 
 	/* misure */
-	for ( unsigned int i = 0; i < 10000; i ++ ) {
+	for ( unsigned int i = 0; i < 100; i ++ ) {
 		sistema.sweep();
 		sistema.correlator();
-//		sistema.autocorrelator(0);
+		sistema.autocorrelator(0);
 	}
 
+	sistema.plot_autocorrelator();
+
+//	sistema.print_c();
+//	sistema.Cluster();
+//	sistema.observables();
+
+	/*
 	sistema.Cluster();
 //	printf( " > ENERGIE:\n" );
 	fprintf( stdout, "#t\tene\t\terr\t\tmat\t\terr\n" );
@@ -29,6 +36,6 @@ int main (void) {
 
 //	printf( "\n > ELEMENTO MATRICE:\n" );
 //	sistema.matrix();
-	
+	*/
 	exit(EXIT_SUCCESS);
 }

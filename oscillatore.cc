@@ -18,8 +18,8 @@ oscillatore::oscillatore ( void ) {
 		*( x + t ) = (long double) 2 * rand() / RAND_MAX;
 
 		/* alloco la memoria per i primi N bin del correlatore */
-		*( c.bin + t ) = (long double *) malloc( sizeof(long double) );
-		if ( *( c.bin + t ) == NULL ) {
+		*( bin + t ) = (long double *) malloc( sizeof(long double) );
+		if ( *( bin + t ) == NULL ) {
 			fprintf ( stderr, "[default ctor] dynamic memory allocation failed\n" );
 			exit(EXIT_FAILURE);
 		}
@@ -40,8 +40,8 @@ oscillatore::oscillatore ( long double value ) {
 		*( x + t ) = value;
 
 		/* alloco la memoria per i primi N bin del correlatore */
-		*( c.bin + t ) = (long double *) malloc( sizeof(long double) );
-		if ( *( c.bin + t ) == NULL ) {
+		*( bin + t ) = (long double *) malloc( sizeof(long double) );
+		if ( *( bin + t ) == NULL ) {
 			fprintf ( stderr, "[default ctor] dynamic memory allocation failed\n" );
 			exit(EXIT_FAILURE);
 		}
@@ -73,13 +73,11 @@ oscillatore::plot_state ( void ) {
 		printf( "%u\t%Lf\n", i, *(x + i) );
 } /* -----  end of method oscillatore::plot_state  ----- */
 
-//	void oscillatore::plot_autocorrelator(void) {
-//		if ( ac.initialized ) {
-//			/* lo stampo normalizzato a 'ac[0]' */
-//			for (unsigned short int j = 0; j < ac.length; j += 1)
-//				printf("%u\t%Lf\n", j, ac.data[j]/ac.data[0]);
-//		}
-//	}
+	void oscillatore::plot_autocorrelator( void ) {
+			/* lo stampo normalizzato a 'ac[0]' */
+			for ( unsigned short int j = 0; j < 30; j ++ )
+				printf("%u\t%Lf\n", j, *( ac + j ) / *ac );
+	}
 
 /*
  * ------------------------------------------------------------------
@@ -140,7 +138,7 @@ oscillatore::get_position ( unsigned short int t ) {
  */
 void
 oscillatore::set_BinSize ( unsigned short int size ) {
-	c.nB = size;	
+	bs = size;	
 } /* -----  end of method oscillatore::set_BinSize  ----- */
 
 /*
@@ -155,7 +153,7 @@ oscillatore::sweep ( void ) {
 	/* numero casuale */
 	long double r;
 	/* azzero il numero di aggiornamenti per lo sweep */
-//	updated = 0;
+	updated = 0;
 
 	/* calcolo gli aggiornamenti */
 	for ( unsigned short int i = 0; i < N; i ++ ) {
@@ -165,7 +163,7 @@ oscillatore::sweep ( void ) {
 		/* controlla se $e^{\delta S} \ge r_2$ */
 		if ( expl( - diff( r, i ) ) >= (long double) rand() / RAND_MAX ) {
 			/* 'updated' controlla gli aggiornamenti in uno sweep */
-//			updated ++;
+			updated ++;
 			
 			/* aggiorno la posizione (i + 1)-esima */
 			*( x + i ) += (long double) DELTA * ( 2 * r - 1);
@@ -184,9 +182,9 @@ oscillatore::sweep ( void ) {
 void
 oscillatore::correlator ( void ) {
 	/* variabile ausiliaria che indica il numero di bin */
-	unsigned int b = (unsigned) c.sweep / c.nB;
+	unsigned int b = (unsigned) c.sweep / bs;
 
-	if ( c.sweep < 30 )
+	if ( c.sweep <= 30 )
 		for ( unsigned short int t = 0; t < N; t ++ ) {
 			/* alloco la memoria */
 			*( auc + t ) = (long double *) realloc ( *(auc + t ), (c.sweep + 1) * sizeof( long double ) );
@@ -199,14 +197,14 @@ oscillatore::correlator ( void ) {
 	/* calcolo i correlatori */
 	for ( unsigned short int t = 0; t < N; t ++ ) {
 		/* azzero la variabile ausiliaria */
-		*( *( auc + t) + c.sweep % 30 ) = (long double) 0;
+		*( *( auc + t) + c.sweep % 31 ) = (long double) 0;
 		/* calcolo il t-esimo correlatore */
 		for ( unsigned short int i = 0; i < N; i ++ )
-			*( *( auc + t) + c.sweep % 30 ) += *( x + i ) * *( x + ( i + t ) % N );
+			*( *( auc + t) + c.sweep % 31 ) += *( x + i ) * *( x + ( i + t ) % N );
 
 		/* aggiorno il bin b-esimo del correlatore t-esimo */
-		*( *( auc + t ) + c.sweep % 30 ) = *( *( auc + t ) + c.sweep % 30 ) / N;
-		*( *( c.bin + t ) + b ) += *( *( auc + t ) + c.sweep % 30 );
+		*( *( auc + t ) + c.sweep % 31 ) = *( *( auc + t ) + c.sweep % 31 ) / N;
+		*( *( bin + t ) + b ) += *( *( auc + t ) + c.sweep % 31 );
 	}
 	
 	/*
@@ -214,25 +212,25 @@ oscillatore::correlator ( void ) {
 	 * matrice dei bin. Questa matrice viene allungata quando tutti
 	 * gli elementi sono stati sistemati in un bin
 	 */
-	if ( !( ++ c.sweep % c.nB ) ) {
+	if ( !( ++ c.sweep % bs ) ) {
 		/* ricalcolo il valore di 'b' */
-		b = (unsigned) c.sweep / c.nB;
+		b = (unsigned) c.sweep / bs;
 		/* alloco la memoria per i nuovi bin */
 		for ( unsigned short int t = 0; t < N; t ++ ) {
-			*( c.bin + t ) = (long double *) realloc( *( c.bin + t), ( b + 1 ) * sizeof(long double) );
+			*( bin + t ) = (long double *) realloc( *( bin + t), ( b + 1 ) * sizeof(long double) );
 			/* controllo che non ci siano problemi di memoria */
-			if ( c.bin + t == NULL ) {
+			if ( bin + t == NULL ) {
 				fprintf ( stderr, "[correlator] Dynamic memory reallocation failed\n" );
 				exit(EXIT_FAILURE);
 			}
 			
 			/* azzero le variabili (bin successivi) */
-			*( *( c.bin + t ) + b ) = (long double) 0;
+			*( *( bin + t ) + b ) = (long double) 0;
 
 			/* aggiorno la media t-esima */
-			*( c.mean + t ) += *( *( c.bin + t ) + b - 1 );
+			*( c.mean + t ) += *( *( bin + t ) + b - 1 );
 			/* aggiorno l'errore */
-			*( c.err + t ) += powl( *( *( c.bin + t ) + b - 1 ), 2. );
+			*( c.err + t ) += powl( *( *( bin + t ) + b - 1 ), 2. );
 		}
 	}
 } /* -----  end of method oscillatore::correlator  ----- */
@@ -247,9 +245,9 @@ oscillatore::correlator ( void ) {
 void
 oscillatore::print_c ( void ) {
 	/* numero di bin */
-	unsigned n = c.sweep / c.nB;
-//	fprintf( stderr, "%u %u: %u\n", c.sweep, c.nB, n );
-//	fprintf( stderr, "%Lg\t%Lg\n", c.bin[0][n - 1], c.bin[0][n - 2] );
+	unsigned n = c.sweep / bs;
+//	fprintf( stderr, "%u %u: %u\n", c.sweep, bs, n );
+//	fprintf( stderr, "%Lg\t%Lg\n", bin[0][n - 1], bin[0][n - 2] );
 
 	/* normalizzo medie ed errori */
 	for ( unsigned short int t = 0; t < N; t ++ ) {
@@ -262,8 +260,9 @@ oscillatore::print_c ( void ) {
 		/* uso la correzione di Bessel per l'errore */
 		*( c.err + t ) = sqrtl( *( c.err + t ) / ( n - 1 ) );
 
-		printf( "%hu\t%Lg\t%Lg\n",
-				t, *( c.mean + t ) / c.nB, *( c.err + t ) / c.nB );
+		printf( "%hu\t", t );
+		oscillatore::round( *( c.mean + t ) / bs, *( c.err + t ) / bs );
+		printf( "\n" );
 	}
 
 //	fprintf( stderr, "N. bin: %u\n", n );
@@ -280,13 +279,13 @@ oscillatore::print_c ( void ) {
 void
 oscillatore::Cluster ( void ) {
 	/* numero di bin */
-	unsigned int bns = (unsigned) c.sweep / c.nB;
+	unsigned int bns = (unsigned) c.sweep / bs;
 
 	/* assegno alle variabili contenenti i bin i cluster rispettivi */
 	for ( unsigned int n = 0; n < bns; n ++ )
 		for ( unsigned short int t = 0; t < N; t ++ ) {
-			*( *( c.bin + t ) + n ) -= *( c.mean + t );
-			*( *( c.bin + t ) + n ) = - *( *( c.bin + t ) + n ) / ( c.nB * ( bns - 1 ) );
+			*( *( bin + t ) + n ) -= *( c.mean + t );
+			*( *( bin + t ) + n ) = - *( *( bin + t ) + n ) / ( bs * ( bns - 1 ) );
 		}
 } /* -----  end of method oscillatore::cluster  ----- */
 
@@ -296,10 +295,10 @@ oscillatore::Cluster ( void ) {
 	 * stop = num. a cui mi fermo (es. ne calcolo ~ 100)
 	 * t = tempo reticolo
 	 */
-	void oscillatore::autocorrelator ( unsigned short int t ) {
-		cacca[0] = 0;
-		for ( unsigned short int i = 0; i < MIN( c.sweep, 30 ); i ++ ) {
-			cacca[i] += auc[0][ c.sweep % 30 ] * auc[0][ ( c.sweep + 30 - i ) % 30 ] ;
+	void oscillatore::autocorrelator ( unsigned short int t = 0 ) {
+		for ( unsigned short int k = 0; k <= MIN( c.sweep - 1 , 30 ); k ++ ) {
+			*( ac + k ) += *( *( auc + t) + ( c.sweep - 1) % 31 ) * *( *( auc + t ) + ( 31 + c.sweep - 1 - k ) % 31 );
+//			printf( "%hu/%hu:\t%Lg\n", k, MIN( c.sweep - 1, 30 ), *( ac + k ) );
 		}
 
 //		/* dipende da 'corr.data[][]' */
@@ -347,11 +346,11 @@ void
 oscillatore::observables ( bool plot = true ) {
 	/* variabili temporanee ausiliarie */
 	long double ene, tmp;
-	/* altre due variabili temporanee */
+	/* altre variabili temporanee */
 	long double e_mean, m_mean, e_err, m_err;
 
 	/* numero di bin */
-	unsigned int bns = (unsigned) c.sweep / c.nB;
+	unsigned int bns = (unsigned) c.sweep / bs;
 
 	/* calcolo le energie */
 	for ( unsigned short int t = 1; t < 8; t ++ ) {
@@ -365,8 +364,8 @@ oscillatore::observables ( bool plot = true ) {
 		/* calcolo le medie */
 		for ( unsigned int n = 0; n < bns; n ++ ) {
 			/* assegno la variabile temporanea */
-			ene = *( *( c.bin + t + 1 ) + n ) + *( *( c.bin + t - 1 ) + n );
-			ene = acoshl( .5 * ene / *( *( c.bin + t ) + n ) );
+			ene = *( *( bin + t + 1 ) + n ) + *( *( bin + t - 1 ) + n );
+			ene = acoshl( .5 * ene / *( *( bin + t ) + n ) );
 
 			/* aggiorno media ed errore (energia) */
 			e_mean += ene;
@@ -374,7 +373,7 @@ oscillatore::observables ( bool plot = true ) {
 
 			/* assegno la variabile temporanea */
 			tmp = expl( - (long double) t * ene );
-			tmp = *( *( c.bin + t ) + n ) / ( tmp + expl( - a * N * ene ) / tmp );
+			tmp = *( *( bin + t ) + n ) / ( tmp + expl( - a * N * ene ) / tmp );
 
 			/* aggiorno media ed errore (elemento matrice) */
 			m_mean += sqrtl( tmp );
@@ -448,7 +447,7 @@ long double
 oscillatore::V ( long double x ) {
 	/* $m \omega^2 x^2 /2 $ */
 	return (long double) M * powl( W * x, 2. ) / 2;
-//	return 0.; /* particella libera */
+	return 0.; /* particella libera */
 } /* -----  end of method oscillatore::V  ----- */
 
 /*
