@@ -9,47 +9,25 @@ int main (void) {
 	srand( time( NULL ) );
 		
 	oscillatore sistema;
-//	sistema.plot_state();
-//	for (unsigned int i = 0; i < 1000; i += 1) {
-////		printf("%u\t%Lf\n", i, sistema.get_action());
-//		sistema.sweep();
-//		if ( i >= 100 )
-//			sistema.update_correlator_binned();
-//	}
-//	
-//	sistema.normalize_correlator_binned();
-////	sistema.plot_correlator();
-////	sistema.normalize_correlator_binned();
-//	
-////	sistema.autocorrelator(1);
-////	sistema.plot_autocorrelator();
-//
-////	sistema.set_nMax(150);
-//	sistema.correlator_bin();
-//
-//	sistema.create_clusters();
-////	sistema.correlator_errors(true);
-//	
-//	/* se passo 'true' come argomento stampa un grafico */
-//	printf("Energie:\n");
-//	sistema.energy(true);
-//	printf("Elemento matrice:\n");
-//	sistema.ananas(true);
-	
 
 	/* termalizzazione */
 	for ( unsigned short int i = 0; i < 100; i ++ )
 		sistema.sweep();
 
 	/* misure */
-	for ( unsigned int i = 0; i < 100000; i ++ ) {
+	for ( unsigned int i = 0; i < 10000; i ++ ) {
 		sistema.sweep();
 		sistema.correlator();
+//		sistema.autocorrelator(0);
 	}
 
-//	sistema.Cluster();
-//	sistema.energy( true );
-	sistema.print_c();
+	sistema.Cluster();
+	printf( "> ENERGIE:\n" );
+	sistema.energy();
+//	sistema.print_c();
 
+	printf( "> ELEMENTO MATRICE:\n" );
+	sistema.matrix();
+	
 	exit(EXIT_SUCCESS);
 }

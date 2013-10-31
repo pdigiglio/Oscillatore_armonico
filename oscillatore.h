@@ -11,6 +11,8 @@
 
 class oscillatore {
 	public:
+
+		long double cacca[30] = {};
 		/* inizializza la posizione in modo casuale */
 		oscillatore (void);
 		/* inizializza la posizione assegnando 'value' ad ogni componente */
@@ -22,6 +24,7 @@ class oscillatore {
 		void correlator (void);
 		void print_c (void);
 		void Cluster (void);
+		void round ( long double val, long double err );
 
 		/* METODI */
 
@@ -30,7 +33,7 @@ class oscillatore {
 		/* stampa il correlatore per un grafico */
 		void plot_correlator (void);
 		/* stampa gli autocorrelatori per un grafico */
-		void plot_autocorrelator (void);
+//		void plot_autocorrelator (void);
 		
 		/* restituisce l'azione */
 		long double get_action (void);
@@ -46,28 +49,28 @@ class oscillatore {
 		long double get_position (unsigned short int t);
 		
 		/* imposta il numero di correlatori in ogni bin */
-		void set_nMax (unsigned short int n);
+		void set_BinSize (unsigned short int n);
 
 		/* decide se la nuova configurazione è accettata */
 		void sweep (void);
 		/* tiene traccia del correlatore c[t] ad ogni stato */
-		void save_correlator (void);
+//		void save_correlator (void);
 		/* 
 		 * calcola l'autocorrelatore
 		 * stop = num. a cui mi fermo (es. ne calcolo ~ 100)
 		 * t = tempo reticolo
 		 */
-		void autocorrelator (unsigned short int t, unsigned short int stop);
+		void autocorrelator (unsigned short int t);
 		/* divide i correlatori in bin da 'nMax' */
-		void correlator_bin (void);
+//		void correlator_bin (void);
 		/* crea una matrice di cluster per il metodo Jacknife */
-		void create_clusters (void);
+//		void create_clusters (void);
 		/* calcolo gli errori sul correlatore */
-		void correlator_errors (bool plot);
+//		void correlator_errors (bool plot);
 		/* calcola errore ed energia */
 		void energy (bool plot);
 		/* calcola elemento matrice e errori */
-		void ananas (bool plot);
+		void matrix (bool plot);
 		
 		/* NOTA:
 		 *  le funzioni di tipo 'update_*' richiedono che venga dato 
@@ -75,21 +78,17 @@ class oscillatore {
 		 */
 		 
 		/* aggiorna il correlatore */
-		void update_correlator (void);
+//		void update_correlator (void);
 		/* crea i "bin" man mano che faccio evolvere il sistema */
-		void update_correlator_binned (void);
+//		void update_correlator_binned (void);
 		/* normalizza il corelatore */
-		void normalize_correlator (void);
+//		void normalize_correlator (void);
 		/* normalizza i bin */
-		void normalize_correlator_binned (void);
+//		void normalize_correlator_binned (void);
 
 	private:
 		/* posizioni lungo il reticolo */
 		long double x[N];
-		/* numero casuale (random) */
-		long double r;
-		/* variabile temporanea generica */
-//		long double tmp;
 		/* variabili aggiornate ad ogni sweep */
 		unsigned short int updated = 0;
 
@@ -100,15 +99,15 @@ class oscillatore {
 			long double *bin[N] = {};
 			unsigned int nB = 100;
 			/* dice se e'riempito o no */
-			bool filled = false;
-			/* controlla se e' normalizzato o no */
-			bool normalized = false;
+//			bool filled = false;
+//			/* controlla se e' normalizzato o no */
+//			bool normalized = false;
 			/* numero di volte che lo aggiorno */
 			unsigned int sweep = 0;
 		} c; /* correlatore (va diviso per 'c.sweep') */
 
 		long double *auc[N] = {};
-		long double cacca[30] = {};
+
 
 		struct {
 			/* matriciozza */
