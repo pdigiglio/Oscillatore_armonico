@@ -22,12 +22,13 @@ int main (void) {
 	}
 
 	sistema.Cluster();
-	printf( "> ENERGIE:\n" );
-	sistema.energy();
+//	printf( " > ENERGIE:\n" );
+	fprintf( stdout, "#t\tene\t\terr\t\tmat\t\terr\n" );
+	sistema.observables();
 //	sistema.print_c();
 
-	printf( "> ELEMENTO MATRICE:\n" );
-	sistema.matrix();
+//	printf( "\n > ELEMENTO MATRICE:\n" );
+//	sistema.matrix();
 	
 	exit(EXIT_SUCCESS);
 }

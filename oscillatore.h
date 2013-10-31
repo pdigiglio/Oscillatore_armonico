@@ -68,7 +68,7 @@ class oscillatore {
 		/* calcolo gli errori sul correlatore */
 //		void correlator_errors (bool plot);
 		/* calcola errore ed energia */
-		void energy (bool plot);
+		void observables (bool plot);
 		/* calcola elemento matrice e errori */
 		void matrix (bool plot);
 		
