@@ -20,7 +20,8 @@ CXXFLAGS = -Wall -O2 -Wextra -pedantic -march=$(MARCH) -std=$(STD) \
 # se esistono $(MAIN).cpp e 'Makefile'
 $(MAIN): %: %.cpp %.cc %.h $(INCLUDE).h Makefile
 	@ echo '#INFO'
-	@ echo 'Architettura rilevata:\t\t' ` gcc -march=native -Q --help=target | grep --text march | cut -f3 `
+	@ echo 'Architettura rilevata:\t\t' ` gcc -march=native -Q \
+		--help=target | grep --text march | cut -f3 `
 	@ echo -e 'Architettura selezionata:\t' $(MARCH)
 	@ echo
 	$(CXX) $< -o $@ $(CXXFLAGS)
