@@ -406,58 +406,6 @@ oscillatore::observables ( bool plot = true ) {
 /*
  * ------------------------------------------------------------------
  *       Class: oscillatore
- *      Method: matrix
- * Description: 
- * ------------------------------------------------------------------
- */
-void
-oscillatore::matrix ( bool plot = true ) {
-	/* variabili temporanee ausiliarie */
-	long double tmp, ene;
-	/* altre due variabili temporanee */
-	long double mean, err;
-
-	/* numero di bin */
-	unsigned int bns = (unsigned) c.sweep / c.nB;
-
-	/* calcolo le energie */
-	for ( unsigned short int t = 1; t < 8; t ++ ) {
-		/* azzero le varabili temporanee */
-		mean = (long double) 0;
-		err = (long double) 0;
-
-		for ( unsigned int n = 0; n < bns; n ++ ) {
-			/* calcolo l'energia */
-			ene = *( *( c.bin + t + 1 ) + n ) + *( *( c.bin + t - 1 ) + n );
-			ene = acoshl( .5 * ene / *( *( c.bin + t ) + n ) );
-			/* assegno la variabile temporanea */
-			tmp = expl( - (long double) t * ene );
-			tmp = *( *( c.bin + t ) + n ) / ( tmp + expl( - a * N * ene ) / tmp );
-
-			/* aggiorno media ed errore */
-			mean += sqrtl( tmp );
-			err += tmp;
-		}
-
-		/* normalizzo la media */
-		mean = mean / bns;
-
-		/* calcolo gli errori */
-		err = err / bns - powl( mean, 2. );
-		err = sqrtl( err * ( bns - 1) );
-
-		/* stampo a schermo i valori ottenuti in funzione di 't' */
-		if( plot ) {
-			printf( "%hu\t", t );
-			oscillatore::round( mean, err );
-			printf( "\n" );
-		}
-	}
-} /* -----  end of method oscillatore::matrix  ----- */
-
-/*
- * ------------------------------------------------------------------
- *       Class: oscillatore
  *      Method: round
  * Description: rounds 'val' to the same significant figures  
  * ------------------------------------------------------------------

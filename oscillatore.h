@@ -69,8 +69,6 @@ class oscillatore {
 //		void correlator_errors (bool plot);
 		/* calcola errore ed energia */
 		void observables (bool plot);
-		/* calcola elemento matrice e errori */
-		void matrix (bool plot);
 		
 		/* NOTA:
 		 *  le funzioni di tipo 'update_*' richiedono che venga dato 
