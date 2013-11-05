@@ -4,6 +4,16 @@
 /* Class header file */
 #include "oscillatore.h"
 
+/* colors */
+#define ANSI_RED     "\x1b[31m"
+#define ANSI_GREEN   "\x1b[32m"
+#define ANSI_YELLOW  "\x1b[33m"
+#define ANSI_BLUE    "\x1b[34m"
+#define ANSI_MAGENTA "\x1b[35m"
+#define ANSI_CYAN    "\x1b[36m"
+#define ANSI_RESET   "\x1b[0m"
+#define ANSI_BOLD	"\033[1m"
+
 /*
  * ------------------------------------------------------------------
  *       Class: oscillatore
@@ -19,8 +29,14 @@ oscillatore::oscillatore ( void ) {
 
 		/* alloco la memoria per i primi N bin del correlatore */
 		*( bin + t ) = (long double *) malloc( sizeof(long double) );
-		if ( *( bin + t ) == NULL ) {
-			fprintf ( stderr, "[default ctor] dynamic memory allocation failed\n" );
+		/* alloco la memoria temporanea per gli autocorrelatori */
+		*( corr + t ) = (long double *) malloc( sizeof(long double) );	
+		/* prova di output colorato */
+		if ( *( bin + t ) == NULL || *( corr + t ) == NULL ) {
+			fprintf ( stderr,
+					"[" ANSI_BOLD ANSI_MAGENTA "%s" ANSI_RESET "]"
+					" dynamic memory allocation failed.\n",
+					(char *) __PRETTY_FUNCTION__ );
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -74,9 +90,10 @@ oscillatore::plot_state ( void ) {
 } /* -----  end of method oscillatore::plot_state  ----- */
 
 	void oscillatore::plot_autocorrelator( void ) {
+			mean = mean * mean;
 			/* lo stampo normalizzato a 'ac[0]' */
 			for ( unsigned short int j = 0; j < 30; j ++ )
-				printf("%u\t%Lf\n", j, *( ac + j ) / *ac );
+				printf("%u\t%Lf\n", j, ( *( ac + j ) - mean ) * ( 1. + (long double) j / ( c.sweep - j) ) / ( *ac - mean ) );
 	}
 
 /*
@@ -153,7 +170,7 @@ oscillatore::sweep ( void ) {
 	/* numero casuale */
 	long double r;
 	/* azzero il numero di aggiornamenti per lo sweep */
-	updated = 0;
+//	updated = 0;
 
 	/* calcolo gli aggiornamenti */
 	for ( unsigned short int i = 0; i < N; i ++ ) {
@@ -163,7 +180,7 @@ oscillatore::sweep ( void ) {
 		/* controlla se $e^{\delta S} \ge r_2$ */
 		if ( expl( - diff( r, i ) ) >= (long double) rand() / RAND_MAX ) {
 			/* 'updated' controlla gli aggiornamenti in uno sweep */
-			updated ++;
+//			updated ++;
 			
 			/* aggiorno la posizione (i + 1)-esima */
 			*( x + i ) += (long double) DELTA * ( 2 * r - 1);
@@ -184,27 +201,19 @@ oscillatore::correlator ( void ) {
 	/* variabile ausiliaria che indica il numero di bin */
 	unsigned int b = (unsigned) c.sweep / bs;
 
-	if ( c.sweep <= 30 )
-		for ( unsigned short int t = 0; t < N; t ++ ) {
-			/* alloco la memoria */
-			*( auc + t ) = (long double *) realloc ( *(auc + t ), (c.sweep + 1) * sizeof( long double ) );
-			if ( *( auc + t ) == NULL ) {
-				fprintf ( stderr, "\ndynamic memory allocation failed\n" );
-				exit (EXIT_FAILURE);
-			}
-		}
+//	printf( "Sweep: %u\n", c.sweep );
 
 	/* calcolo i correlatori */
 	for ( unsigned short int t = 0; t < N; t ++ ) {
 		/* azzero la variabile ausiliaria */
-		*( *( auc + t) + c.sweep % 31 ) = (long double) 0;
+		*( *( corr + t) + c.sweep % count ) = (long double) 0;
 		/* calcolo il t-esimo correlatore */
 		for ( unsigned short int i = 0; i < N; i ++ )
-			*( *( auc + t) + c.sweep % 31 ) += *( x + i ) * *( x + ( i + t ) % N );
+			*( *( corr + t) + c.sweep % count ) += *( x + i ) * *( x + ( i + t ) % N );
 
 		/* aggiorno il bin b-esimo del correlatore t-esimo */
-		*( *( auc + t ) + c.sweep % 31 ) = *( *( auc + t ) + c.sweep % 31 ) / N;
-		*( *( bin + t ) + b ) += *( *( auc + t ) + c.sweep % 31 );
+//		*( *( corr + t ) + c.sweep % count ) = *( *( corr + t ) + c.sweep % count ) / N;
+		*( *( bin + t ) + b ) += *( *( corr + t ) + c.sweep % count );
 	}
 	
 	/*
@@ -245,7 +254,7 @@ oscillatore::correlator ( void ) {
 void
 oscillatore::print_c ( void ) {
 	/* numero di bin */
-	unsigned n = c.sweep / bs;
+	unsigned int n = (unsigned) c.sweep / bs;
 //	fprintf( stderr, "%u %u: %u\n", c.sweep, bs, n );
 //	fprintf( stderr, "%Lg\t%Lg\n", bin[0][n - 1], bin[0][n - 2] );
 
@@ -273,7 +282,7 @@ oscillatore::print_c ( void ) {
  * ------------------------------------------------------------------
  *       Class: oscillatore
  *      Method: cluster
- * Description: creates clusters from correlators bin
+ * Description: creates non-normalized clusters from correlators bin
  * ------------------------------------------------------------------
  */
 void
@@ -283,9 +292,9 @@ oscillatore::Cluster ( void ) {
 
 	/* assegno alle variabili contenenti i bin i cluster rispettivi */
 	for ( unsigned int n = 0; n < bns; n ++ )
-		for ( unsigned short int t = 0; t < N; t ++ ) {
+		for ( unsigned short int t = tMin - 1; t <= tMax + 1; t ++ ) {
 			*( *( bin + t ) + n ) -= *( c.mean + t );
-			*( *( bin + t ) + n ) = - *( *( bin + t ) + n ) / ( bs * ( bns - 1 ) );
+			*( *( bin + t ) + n ) = - *( *( bin + t ) + n ); // / ( N * bs * ( bns - 1 ) );
 		}
 } /* -----  end of method oscillatore::cluster  ----- */
 
@@ -296,42 +305,25 @@ oscillatore::Cluster ( void ) {
 	 * t = tempo reticolo
 	 */
 	void oscillatore::autocorrelator ( unsigned short int t = 0 ) {
-		for ( unsigned short int k = 0; k <= MIN( c.sweep - 1 , 30 ); k ++ ) {
-			*( ac + k ) += *( *( auc + t) + ( c.sweep - 1) % 31 ) * *( *( auc + t ) + ( 31 + c.sweep - 1 - k ) % 31 );
-//			printf( "%hu/%hu:\t%Lg\n", k, MIN( c.sweep - 1, 30 ), *( ac + k ) );
-		}
-
-//		/* dipende da 'corr.data[][]' */
-//		if ( corr.initialized ) {
-//			/* controlla se c[t] e' riempito (se no lo riempie) */
-//			fill_correlator();
-//		
-//			/* espando il puntatore 'ac' */
-//			ac.data = (long double *) malloc(stop*sizeof(long double));
-//			if ( ac.data == NULL )
-//				exit(EXIT_FAILURE);
-//
-//			/* numero di correlatori salvati < tempo max */
-//			if ( c.sweep < stop ) {
-//				printf("Sono stati salvati pochi correlatori, procedo comunque.\n");
-//				stop = c.sweep;
-//			}
-//
-//			for (unsigned short int k = 0; k < stop; k += 1) {
-//				ac.data[k] = (long double) 0;
-//				for (unsigned int i = 0; i < c.sweep - k; i += 1)
-//					ac.data[k] += (long double) corr.data[i][t]*corr.data[i + k][t];
-//				/* normalizzo */
-//				ac.data[k] = (long double) ac.data[k]/(c.sweep - k);
-//				/*sottraggo la media */
-//				ac.data[k] -= powl(c.mean[t], (long double) 2);
-//			}
-//			/* salvo la lunghezza di 'ac' */
-//			ac.length = stop;
-//			ac.initialized = true;		
+//		/* FIXME */
+//		for ( unsigned short int k = 0; k <= MIN( c.sweep, count ); k ++ ) {
+//			*( ac + k ) += *( *( corr + t) + c.sweep % count ) * *( *( corr + t ) + ( count + c.sweep - k ) % count );
+////			printf( "%hu/%hu:\t%Lg\n", k, MIN( c.sweep - 1, 30 ), *( ac + k ) );
 //		}
-//		else
-//			printf("Bisogna salvare lo storico dei correlatori per calcolare l'autocorrelatore\n");
+//
+//		mean += *( *(corr + t) );
+//
+//
+//		count ++;
+//		for ( unsigned short j = 0; j < N; j ++ ) {
+//
+//			*( corr + j ) = (long double *) realloc ( *( corr + j ), count * sizeof(long double) );
+//			if ( *( corr + j ) == NULL ) {
+//				fprintf ( stderr, "\ndynamic memory reallocation failed\n" );
+//				exit (EXIT_FAILURE);
+//			}
+//
+//		}
 	}
 
 /*
@@ -353,7 +345,7 @@ oscillatore::observables ( bool plot = true ) {
 	unsigned int bns = (unsigned) c.sweep / bs;
 
 	/* calcolo le energie */
-	for ( unsigned short int t = 1; t < 8; t ++ ) {
+	for ( unsigned short int t = tMin; t <= tMax; t ++ ) {
 		/* azzero le varabili temporanee per le medie */
 		e_mean = (long double) 0;
 		e_err = (long double) 0;
@@ -363,8 +355,11 @@ oscillatore::observables ( bool plot = true ) {
 
 		/* calcolo le medie */
 		for ( unsigned int n = 0; n < bns; n ++ ) {
+			/* TODO implementa la creazione dei cluster qui dentro */
+//			*( *( bin + t ) + n ) -= *( c.mean + t );
+//			*( *( bin + t ) + n ) = - *( *( bin + t ) + n );
 			/* assegno la variabile temporanea */
-			ene = *( *( bin + t + 1 ) + n ) + *( *( bin + t - 1 ) + n );
+			ene = *( *( bin + t + 1 ) + n ) + *( *( bin + ( N + t - 1 ) % N ) + n );
 			ene = acoshl( .5 * ene / *( *( bin + t ) + n ) );
 
 			/* aggiorno media ed errore (energia) */
@@ -388,15 +383,23 @@ oscillatore::observables ( bool plot = true ) {
 		e_err = e_err / bns - powl( e_mean, 2. );
 		e_err = sqrtl( e_err * (bns - 1) );
 
+		/* 
+		 * :REMARK:03/11/2013 23:17:55:: Sistemo la normalizzazione
+		 * che ho trascurato nella creazione dei cluster
+		 */
 		m_err = m_err / bns - powl( m_mean, 2. );
-		m_err = sqrtl( m_err * (bns - 1) );
+		m_err = sqrtl( m_err / ( N * bs ) );
 
 		/* stampo a schermo i valori ottenuti in funzione di 't' */
-		if( plot ) {
+		if( plot /* && t > 0 && t < 8 */ ) {
 			printf( "%hu\t", t );
 			oscillatore::round( e_mean, e_err );
-			printf( "\t" );
-			oscillatore::round( m_mean, m_err );
+			printf( "\t" );	
+			/* 
+			 * :REMARK:03/11/2013 23:17:55:: Sistemo la normalizzazione
+			 * che ho trascurato nella creazione dei cluster
+			 */
+			oscillatore::round( m_mean / sqrtl( N * bs * ( bns - 1 ) ), m_err );
 			printf( "\n" );
 		}
 	}
@@ -430,8 +433,8 @@ oscillatore::round ( long double val, long double err ) {
 		exp --;
 
 	printf( "%Lf\t%Lf",
-				floorl( val / pow(10., exp) + 0.5) * pow(10., exp),
-				floorl( err / pow(10., exp) + 0.5) * pow(10., exp)
+				floorl( val / powl(10., exp) + 0.5) * powl(10., exp),
+				floorl( err / powl(10., exp) + 0.5) * powl(10., exp)
 			);
 } /* -----  end of method oscillatore::round  ----- */
 
@@ -447,7 +450,7 @@ long double
 oscillatore::V ( long double x ) {
 	/* $m \omega^2 x^2 /2 $ */
 	return (long double) M * powl( W * x, 2. ) / 2;
-	return 0.; /* particella libera */
+//	return 0.; /* particella libera */
 } /* -----  end of method oscillatore::V  ----- */
 
 /*
@@ -461,9 +464,9 @@ oscillatore::V ( long double x ) {
 long double
 oscillatore::diff ( long double step, unsigned short int t ) {
 	/*
-	 * XXX le espressioni '( N + t - 1 ) % N' e '( t + 1 ) % N'
-	 * servono per assicurare che gli indici del vettore siano
-	 * tutti minori di N (e ciclici)
+	 * XXX le espressioni '( N + t - 1 ) % N' e '( t + 1 ) % N' servo-
+	 * no per assicurare che gli indici del vettore siano tutti minori
+	 * di N (e ciclici)
 	 */
 	long double delta = DELTA * ( 2 * step - 1 );
 	long double tmp = 2 * *( x + t ) + delta;

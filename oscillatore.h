@@ -77,6 +77,16 @@ class oscillatore {
 		long double *auc[N] = {};
 		/* autocorrelator array */
 		long double ac[30] = {};
+		long double mean = 0;
+
+		long double *corr[N] = {};
+		unsigned short int count = 1;
+
+		/*
+		 * controllano gli estremi dei tempi per cui calcolare i
+		 * cluster e le osservabili
+		 */
+		unsigned short int tMin = 1, tMax = 8;
 		
 		long double S; /* azione */
 
